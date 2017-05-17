@@ -51,7 +51,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#define DEBUG DEBUG_NONE
+#define DEBUG DEBUG_FULL
 #include "net/ip/uip-debug.h"
 
 static uip_ipaddr_t prefix;
@@ -351,6 +351,7 @@ PROCESS_THREAD(border_router_process, ev, data)
   SENSORS_ACTIVATE(button_sensor);
 
   PRINTF("RPL-Border router started\n");
+  PRINTF("RPL START AFTER TIME: %lu / ticks per sec: %u\n", (unsigned long)clock_time() - global_start_time, CLOCK_SECOND);
 #if 0
    /* The border router runs with a 100% duty cycle in order to ensure high
      packet reception rates.

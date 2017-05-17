@@ -200,7 +200,7 @@ main(int argc, char **argv)
   leds_init();
   leds_on(LEDS_RED);
   global_start_time = clock_time();
-  PRINTF("Clock start time: %u", global_start_time);
+  PRINTF("GP: Clock start time: %u\n", global_start_time);
 
   clock_wait(100);
 
