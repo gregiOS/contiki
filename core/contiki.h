@@ -55,4 +55,6 @@
 
 #include "sys/energest.h"
 
+static clock_time_t global_start_time;
+
 #endif /* CONTIKI_H_ */
