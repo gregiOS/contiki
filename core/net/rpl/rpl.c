@@ -49,7 +49,7 @@
 #include "net/rpl/rpl-private.h"
 #include "net/ipv6/multicast/uip-mcast6.h"
 
-#define DEBUG DEBUG_NONE
+#define DEBUG DEBUG_FULL
 #include "net/ip/uip-debug.h"
 
 #include <limits.h>
@@ -280,6 +280,7 @@ rpl_ipv6_neighbor_callback(uip_ds6_nbr_t *nbr)
   PRINTF("RPL: Neighbor state changed for ");
   PRINT6ADDR(&nbr->ipaddr);
   PRINTF(", nscount=%u, state=%u\n", nbr->nscount, nbr->state);
+  PRINTF("AFTER %lu clock ticks\n", (unsigned long) clock_time() - global_start_time);
   for(instance = &instance_table[0], end = instance + RPL_MAX_INSTANCES; instance < end; ++instance) {
     if(instance->used == 1 ) {
       p = rpl_find_parent_any_dag(instance, &nbr->ipaddr);

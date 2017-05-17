@@ -10,8 +10,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3ec8d7c8-d649-44cd-a500-89301844f3d3" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/examples/ipv6/rpl-border-router/border-router.c" afterPath="$PROJECT_DIR$/examples/ipv6/rpl-border-router/border-router.c" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/platform/z1/contiki-z1-main.c" afterPath="$PROJECT_DIR$/platform/z1/contiki-z1-main.c" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/net/rpl/rpl.c" afterPath="$PROJECT_DIR$/core/net/rpl/rpl.c" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -49,11 +48,33 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="border-router.c" pinned="false" current-in-tab="true">
+      <file leaf-file-name="border-router.c" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/examples/ipv6/rpl-border-router/border-router.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="166">
-              <caret line="352" column="40" lean-forward="false" selection-start-line="352" selection-start-column="40" selection-end-line="352" selection-end-column="40" />
+            <state relative-caret-position="181">
+              <caret line="355" column="3" lean-forward="true" selection-start-line="355" selection-start-column="3" selection-end-line="355" selection-end-column="3" />
+              <folding>
+                <element signature="e#10041#10313#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="rpl.h" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/core/net/rpl/rpl.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-1395">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="rpl.c" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/core/net/rpl/rpl.c">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="206">
+              <caret line="282" column="52" lean-forward="false" selection-start-line="282" selection-start-column="52" selection-end-line="282" selection-end-column="52" />
               <folding />
             </state>
           </provider>
@@ -75,6 +96,7 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
+      <find>PRINTA</find>
       <find>clock</find>
     </findStrings>
   </component>
@@ -87,6 +109,7 @@
         <option value="$PROJECT_DIR$/core/contiki.h" />
         <option value="$PROJECT_DIR$/platform/z1/contiki-z1-main.c" />
         <option value="$PROJECT_DIR$/examples/ipv6/rpl-border-router/border-router.c" />
+        <option value="$PROJECT_DIR$/core/net/rpl/rpl.c" />
       </list>
     </option>
   </component>
@@ -242,7 +265,29 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="sys" />
+              <option name="myItemId" value="net" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="contiki" />
+              <option name="myItemType" value="com.jetbrains.cidr.projectView.CidrFilesViewHelper$MyProjectTreeStructure$1" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="contiki" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="core" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="net" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="rpl" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -264,12 +309,12 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1495047925756</updated>
-      <workItem from="1495047927063" duration="563000" />
+      <workItem from="1495047927063" duration="895000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="563000" />
+    <option name="totallyTimeSpent" value="895000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1440" height="873" extended-state="6" />
@@ -318,14 +363,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/core/contiki.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="349">
-          <caret line="57" column="37" lean-forward="false" selection-start-line="57" selection-start-column="20" selection-end-line="57" selection-end-column="37" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/core/sys/clock.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="210">
@@ -338,8 +375,34 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/examples/ipv6/rpl-border-router/border-router.c">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="166">
-          <caret line="352" column="40" lean-forward="false" selection-start-line="352" selection-start-column="40" selection-end-line="352" selection-end-column="40" />
+        <state relative-caret-position="181">
+          <caret line="355" column="3" lean-forward="true" selection-start-line="355" selection-start-column="3" selection-end-line="355" selection-end-column="3" />
+          <folding>
+            <element signature="e#10041#10313#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/net/rpl/rpl.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1395">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/contiki.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="349">
+          <caret line="57" column="37" lean-forward="false" selection-start-line="57" selection-start-column="20" selection-end-line="57" selection-end-column="37" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/net/rpl/rpl.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="206">
+          <caret line="282" column="52" lean-forward="false" selection-start-line="282" selection-start-column="52" selection-end-line="282" selection-end-column="52" />
           <folding />
         </state>
       </provider>
