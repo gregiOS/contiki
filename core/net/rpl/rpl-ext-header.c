@@ -49,7 +49,7 @@
 #include "net/ipv6/uip-ds6.h"
 #include "net/rpl/rpl-private.h"
 #include "net/packetbuf.h"
-#include "net/rpl/rpl-ns.h"
+#include "net/rpl/rpl-non-storing.h"
 
 #define DEBUG DEBUG_FULL
 
