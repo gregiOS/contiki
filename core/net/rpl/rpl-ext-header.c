@@ -49,8 +49,10 @@
 #include "net/ipv6/uip-ds6.h"
 #include "net/rpl/rpl-private.h"
 #include "net/packetbuf.h"
+#include "net/rpl/rpl-ns.h"
 
-#define DEBUG DEBUG_NONE
+#define DEBUG DEBUG_FULL
+
 #include "net/ip/uip-debug.h"
 
 #include <limits.h>
@@ -61,327 +63,498 @@
 #define UIP_EXT_BUF               ((struct uip_ext_hdr *)&uip_buf[uip_l2_l3_hdr_len])
 #define UIP_HBHO_BUF              ((struct uip_hbho_hdr *)&uip_buf[uip_l2_l3_hdr_len])
 #define UIP_HBHO_NEXT_BUF         ((struct uip_ext_hdr *)&uip_buf[uip_l2_l3_hdr_len + RPL_HOP_BY_HOP_LEN])
+#define UIP_RH_BUF                ((struct uip_routing_hdr *)&uip_buf[uip_l2_l3_hdr_len])
+#define UIP_RPL_SRH_BUF           ((struct uip_rpl_srh_hdr *)&uip_buf[uip_l2_l3_hdr_len + RPL_RH_LEN])
 #define UIP_EXT_HDR_OPT_BUF       ((struct uip_ext_hdr_opt *)&uip_buf[uip_l2_l3_hdr_len + uip_ext_opt_offset])
 #define UIP_EXT_HDR_OPT_PADN_BUF  ((struct uip_ext_hdr_opt_padn *)&uip_buf[uip_l2_l3_hdr_len + uip_ext_opt_offset])
 #define UIP_EXT_HDR_OPT_RPL_BUF   ((struct uip_ext_hdr_opt_rpl *)&uip_buf[uip_l2_l3_hdr_len + uip_ext_opt_offset])
+
 /*---------------------------------------------------------------------------*/
 int
-rpl_verify_header(int uip_ext_opt_offset)
-{
-  rpl_instance_t *instance;
-  int down;
-  uint16_t sender_rank;
-  uint8_t sender_closer;
-  uip_ds6_route_t *route;
+rpl_verify_header(int uip_ext_opt_offset) {
+    rpl_instance_t *instance;
+    int down;
+    uint16_t sender_rank;
+    uint8_t sender_closer;
+    uip_ds6_route_t *route;
 
-  if(UIP_HBHO_BUF->len != RPL_HOP_BY_HOP_LEN - 8) {
-    PRINTF("RPL: Hop-by-hop extension header has wrong size\n");
-    return 1;
-  }
-
-  if(UIP_EXT_HDR_OPT_RPL_BUF->opt_type != UIP_EXT_HDR_OPT_RPL) {
-    PRINTF("RPL: Non RPL Hop-by-hop option\n");
-    return 1;
-  }
-
-  if(UIP_EXT_HDR_OPT_RPL_BUF->opt_len != RPL_HDR_OPT_LEN) {
-    PRINTF("RPL: Bad header option! (wrong length)\n");
-    return 1;
-  }
-
-  instance = rpl_get_instance(UIP_EXT_HDR_OPT_RPL_BUF->instance);
-  if(instance == NULL) {
-    PRINTF("RPL: Unknown instance: %u\n",
-           UIP_EXT_HDR_OPT_RPL_BUF->instance);
-    return 1;
-  }
-
-  if(UIP_EXT_HDR_OPT_RPL_BUF->flags & RPL_HDR_OPT_FWD_ERR) {
-    PRINTF("RPL: Forward error!\n");
-    /* We should try to repair it by removing the neighbor that caused
-       the packet to be forwareded in the first place. We drop any
-       routes that go through the neighbor that sent the packet to
-       us. */
-    route = uip_ds6_route_lookup(&UIP_IP_BUF->destipaddr);
-    if(route != NULL) {
-      uip_ds6_route_rm(route);
+    if (UIP_HBHO_BUF->len != RPL_HOP_BY_HOP_LEN - 8) {
+        PRINTF("RPL: Hop-by-hop extension header has wrong size\n");
+        return 1;
     }
-    RPL_STAT(rpl_stats.forward_errors++);
-    /* Trigger DAO retransmission */
-    rpl_reset_dio_timer(instance);
-    /* drop the packet as it is not routable */
-    return 1;
-  }
 
-  if(!instance->current_dag->joined) {
-    PRINTF("RPL: No DAG in the instance\n");
-    return 1;
-  }
-
-  down = 0;
-  if(UIP_EXT_HDR_OPT_RPL_BUF->flags & RPL_HDR_OPT_DOWN) {
-    down = 1;
-  }
-
-  sender_rank = UIP_HTONS(UIP_EXT_HDR_OPT_RPL_BUF->senderrank);
-  sender_closer = sender_rank < instance->current_dag->rank;
-
-  PRINTF("RPL: Packet going %s, sender closer %d (%d < %d)\n", down == 1 ? "down" : "up",
-	 sender_closer,
-	 sender_rank,
-	 instance->current_dag->rank
-	 );
-
-  if((down && !sender_closer) || (!down && sender_closer)) {
-    PRINTF("RPL: Loop detected - senderrank: %d my-rank: %d sender_closer: %d\n",
-	   sender_rank, instance->current_dag->rank,
-	   sender_closer);
-    if(UIP_EXT_HDR_OPT_RPL_BUF->flags & RPL_HDR_OPT_RANK_ERR) {
-      RPL_STAT(rpl_stats.loop_errors++);
-      PRINTF("RPL: Rank error signalled in RPL option!\n");
-      /* Packet must be dropped and dio trickle timer reset, see RFC6550 - 11.2.2.2 */
-      rpl_reset_dio_timer(instance);
-      return 1;
+    if (UIP_EXT_HDR_OPT_RPL_BUF->opt_type != UIP_EXT_HDR_OPT_RPL) {
+        PRINTF("RPL: Non RPL Hop-by-hop option\n");
+        return 1;
     }
-    PRINTF("RPL: Single error tolerated\n");
-    RPL_STAT(rpl_stats.loop_warnings++);
-    UIP_EXT_HDR_OPT_RPL_BUF->flags |= RPL_HDR_OPT_RANK_ERR;
+
+    if (UIP_EXT_HDR_OPT_RPL_BUF->opt_len != RPL_HDR_OPT_LEN) {
+        PRINTF("RPL: Bad header option! (wrong length)\n");
+        return 1;
+    }
+
+    instance = rpl_get_instance(UIP_EXT_HDR_OPT_RPL_BUF->instance);
+    if (instance == NULL) {
+        PRINTF("RPL: Unknown instance: %u\n",
+               UIP_EXT_HDR_OPT_RPL_BUF->instance);
+        return 1;
+    }
+
+    if (UIP_EXT_HDR_OPT_RPL_BUF->flags & RPL_HDR_OPT_FWD_ERR) {
+        PRINTF("RPL: Forward error!\n");
+        /* We should try to repair it by removing the neighbor that caused
+           the packet to be forwareded in the first place. We drop any
+           routes that go through the neighbor that sent the packet to
+           us. */
+        // Required to not store instance on the non-storing mode
+        if (RPL_IS_STORING(instance)) {
+            route = uip_ds6_route_lookup(&UIP_IP_BUF->destipaddr);
+            if (route != NULL) {
+                uip_ds6_route_rm(route);
+            }
+        }
+        RPL_STAT(rpl_stats.forward_errors++);
+        /* Trigger DAO retransmission */
+        rpl_reset_dio_timer(instance);
+        /* drop the packet as it is not routable */
+        return 1;
+    }
+
+    if (!instance->current_dag->joined) {
+        PRINTF("RPL: No DAG in the instance\n");
+        return 1;
+    }
+
+    down = 0;
+    if (UIP_EXT_HDR_OPT_RPL_BUF->flags & RPL_HDR_OPT_DOWN) {
+        down = 1;
+    }
+
+    sender_rank = UIP_HTONS(UIP_EXT_HDR_OPT_RPL_BUF->senderrank);
+    sender_closer = sender_rank < instance->current_dag->rank;
+
+    PRINTF("RPL: Packet going %s, sender closer %d (%d < %d)\n", down == 1 ? "down" : "up",
+           sender_closer,
+           sender_rank,
+           instance->current_dag->rank
+    );
+
+    if (RPL_IS_NON_STORING(instance, sender_rank)) {
+        rpl_select_dag(instance, sender_rank);
+    }
+
+    if ((down && !sender_closer) || (!down && sender_closer)) {
+        PRINTF("RPL: Loop detected - senderrank: %d my-rank: %d sender_closer: %d\n",
+               sender_rank, instance->current_dag->rank,
+               sender_closer);
+        if (UIP_EXT_HDR_OPT_RPL_BUF->flags & RPL_HDR_OPT_RANK_ERR) {
+            RPL_STAT(rpl_stats.loop_errors++);
+            PRINTF("RPL: Rank error signalled in RPL option!\n");
+            /* Packet must be dropped and dio trickle timer reset, see RFC6550 - 11.2.2.2 */
+            rpl_reset_dio_timer(instance);
+            return 1;
+        }
+        PRINTF("RPL: Single error tolerated\n");
+        RPL_STAT(rpl_stats.loop_warnings++);
+        UIP_EXT_HDR_OPT_RPL_BUF->flags |= RPL_HDR_OPT_RANK_ERR;
+        return 0;
+    }
+
+    PRINTF("RPL: Rank OK\n");
+
     return 0;
-  }
-
-  PRINTF("RPL: Rank OK\n");
-
-  return 0;
 }
+
 /*---------------------------------------------------------------------------*/
 static void
-set_rpl_opt(unsigned uip_ext_opt_offset)
-{
-  uint8_t temp_len;
+set_rpl_opt(unsigned uip_ext_opt_offset) {
+    uint8_t temp_len;
 
-  memmove(UIP_HBHO_NEXT_BUF, UIP_EXT_BUF, uip_len - UIP_IPH_LEN);
-  memset(UIP_HBHO_BUF, 0, RPL_HOP_BY_HOP_LEN);
-  UIP_HBHO_BUF->next = UIP_IP_BUF->proto;
-  UIP_IP_BUF->proto = UIP_PROTO_HBHO;
-  UIP_HBHO_BUF->len = RPL_HOP_BY_HOP_LEN - 8;
-  UIP_EXT_HDR_OPT_RPL_BUF->opt_type = UIP_EXT_HDR_OPT_RPL;
-  UIP_EXT_HDR_OPT_RPL_BUF->opt_len = RPL_HDR_OPT_LEN;
-  UIP_EXT_HDR_OPT_RPL_BUF->flags = 0;
-  UIP_EXT_HDR_OPT_RPL_BUF->instance = 0;
-  UIP_EXT_HDR_OPT_RPL_BUF->senderrank = 0;
-  uip_len += RPL_HOP_BY_HOP_LEN;
-  temp_len = UIP_IP_BUF->len[1];
-  UIP_IP_BUF->len[1] += UIP_HBHO_BUF->len + 8;
-  if(UIP_IP_BUF->len[1] < temp_len) {
-    UIP_IP_BUF->len[0]++;
-  }
+    memmove(UIP_HBHO_NEXT_BUF, UIP_EXT_BUF, uip_len - UIP_IPH_LEN);
+    memset(UIP_HBHO_BUF, 0, RPL_HOP_BY_HOP_LEN);
+    UIP_HBHO_BUF->next = UIP_IP_BUF->proto;
+    UIP_IP_BUF->proto = UIP_PROTO_HBHO;
+    UIP_HBHO_BUF->len = RPL_HOP_BY_HOP_LEN - 8;
+    UIP_EXT_HDR_OPT_RPL_BUF->opt_type = UIP_EXT_HDR_OPT_RPL;
+    UIP_EXT_HDR_OPT_RPL_BUF->opt_len = RPL_HDR_OPT_LEN;
+    UIP_EXT_HDR_OPT_RPL_BUF->flags = 0;
+    UIP_EXT_HDR_OPT_RPL_BUF->instance = 0;
+    UIP_EXT_HDR_OPT_RPL_BUF->senderrank = 0;
+    uip_len += RPL_HOP_BY_HOP_LEN;
+    temp_len = UIP_IP_BUF->len[1];
+    UIP_IP_BUF->len[1] += UIP_HBHO_BUF->len + 8;
+    if (UIP_IP_BUF->len[1] < temp_len) {
+        UIP_IP_BUF->len[0]++;
+    }
 }
+
 /*---------------------------------------------------------------------------*/
 int
-rpl_update_header_empty(void)
-{
-  rpl_instance_t *instance;
-  int uip_ext_opt_offset;
-  int last_uip_ext_len;
-  rpl_parent_t *parent;
+rpl_update_header_empty(void) {
+    rpl_instance_t *instance;
+    int uip_ext_opt_offset;
+    int last_uip_ext_len;
+    rpl_parent_t *parent;
 
-  last_uip_ext_len = uip_ext_len;
-  uip_ext_len = 0;
-  uip_ext_opt_offset = 2;
+    last_uip_ext_len = uip_ext_len;
+    uip_ext_len = 0;
+    uip_ext_opt_offset = 2;
 
-  PRINTF("RPL: Verifying the presence of the RPL header option\n");
+    PRINTF("RPL: Verifying the presence of the RPL header option\n");
 
-  switch(UIP_IP_BUF->proto) {
-  case UIP_PROTO_HBHO:
-    if(UIP_HBHO_BUF->len != RPL_HOP_BY_HOP_LEN - 8) {
-      PRINTF("RPL: Hop-by-hop extension header has wrong size\n");
-      uip_ext_len = last_uip_ext_len;
-      return 0;
-    }
-    if(UIP_EXT_HDR_OPT_RPL_BUF->opt_type != UIP_EXT_HDR_OPT_RPL) {
-      PRINTF("RPL: Non RPL Hop-by-hop option support not implemented\n");
-      uip_ext_len = last_uip_ext_len;
-      return 0;
-    }
-    if(UIP_EXT_HDR_OPT_RPL_BUF->opt_len != RPL_HDR_OPT_LEN) {
-      PRINTF("RPL: RPL Hop-by-hop option has wrong length\n");
-      uip_ext_len = last_uip_ext_len;
-      return 0;
-    }
-    instance = rpl_get_instance(UIP_EXT_HDR_OPT_RPL_BUF->instance);
-    if(instance == NULL || !instance->used || !instance->current_dag->joined) {
-      PRINTF("RPL: Unable to add hop-by-hop extension header: incorrect instance\n");
-      return 0;
-    }
-    break;
-  default:
+    switch (UIP_IP_BUF->proto) {
+        case UIP_PROTO_HBHO:
+            if (UIP_HBHO_BUF->len != RPL_HOP_BY_HOP_LEN - 8) {
+                PRINTF("RPL: Hop-by-hop extension header has wrong size\n");
+                uip_ext_len = last_uip_ext_len;
+                return 0;
+            }
+            if (UIP_EXT_HDR_OPT_RPL_BUF->opt_type != UIP_EXT_HDR_OPT_RPL) {
+                PRINTF("RPL: Non RPL Hop-by-hop option support not implemented\n");
+                uip_ext_len = last_uip_ext_len;
+                return 0;
+            }
+            if (UIP_EXT_HDR_OPT_RPL_BUF->opt_len != RPL_HDR_OPT_LEN) {
+                PRINTF("RPL: RPL Hop-by-hop option has wrong length\n");
+                uip_ext_len = last_uip_ext_len;
+                return 0;
+            }
+            instance = rpl_get_instance(UIP_EXT_HDR_OPT_RPL_BUF->instance);
+            if (instance == NULL || !instance->used || !instance->current_dag->joined) {
+                PRINTF("RPL: Unable to add hop-by-hop extension header: incorrect instance\n");
+                return 0;
+            }
+            break;
+        default:
 #if RPL_INSERT_HBH_OPTION
-    PRINTF("RPL: No hop-by-hop option found, creating it\n");
-    if(uip_len + RPL_HOP_BY_HOP_LEN > UIP_BUFSIZE) {
-      PRINTF("RPL: Packet too long: impossible to add hop-by-hop option\n");
-      uip_ext_len = last_uip_ext_len;
-      return 0;
-    }
-    set_rpl_opt(uip_ext_opt_offset);
-    uip_ext_len = last_uip_ext_len + RPL_HOP_BY_HOP_LEN;
+            PRINTF("RPL: No hop-by-hop option found, creating it\n");
+            if(uip_len + RPL_HOP_BY_HOP_LEN > UIP_BUFSIZE) {
+              PRINTF("RPL: Packet too long: impossible to add hop-by-hop option\n");
+              uip_ext_len = last_uip_ext_len;
+              return 0;
+            }
+            set_rpl_opt(uip_ext_opt_offset);
+            uip_ext_len = last_uip_ext_len + RPL_HOP_BY_HOP_LEN;
 #endif
-    return 0;
-  }
-
-  switch(UIP_EXT_HDR_OPT_BUF->type) {
-  case UIP_EXT_HDR_OPT_RPL:
-    PRINTF("RPL: Updating RPL option\n");
-    UIP_EXT_HDR_OPT_RPL_BUF->senderrank = UIP_HTONS(instance->current_dag->rank);
-
-    /* Check the direction of the down flag, as per Section 11.2.2.3,
-       which states that if a packet is going down it should in
-       general not go back up again. If this happens, a
-       RPL_HDR_OPT_FWD_ERR should be flagged. */
-    if((UIP_EXT_HDR_OPT_RPL_BUF->flags & RPL_HDR_OPT_DOWN)) {
-      if(uip_ds6_route_lookup(&UIP_IP_BUF->destipaddr) == NULL) {
-        UIP_EXT_HDR_OPT_RPL_BUF->flags |= RPL_HDR_OPT_FWD_ERR;
-        PRINTF("RPL forwarding error\n");
-        /* We should send back the packet to the originating parent,
-           but it is not feasible yet, so we send a No-Path DAO instead */
-        PRINTF("RPL generate No-Path DAO\n");
-        parent = rpl_get_parent((uip_lladdr_t *)packetbuf_addr(PACKETBUF_ADDR_SENDER));
-        if(parent != NULL) {
-          dao_output_target(parent, &UIP_IP_BUF->destipaddr, RPL_ZERO_LIFETIME);
-        }
-        /* Drop packet */
-        return 1;
-      }
-    } else {
-      /* Set the down extension flag correctly as described in Section
-         11.2 of RFC6550. If the packet progresses along a DAO route,
-         the down flag should be set. */
-      if(uip_ds6_route_lookup(&UIP_IP_BUF->destipaddr) == NULL) {
-        /* No route was found, so this packet will go towards the RPL
-           root. If so, we should not set the down flag. */
-        UIP_EXT_HDR_OPT_RPL_BUF->flags &= ~RPL_HDR_OPT_DOWN;
-        PRINTF("RPL option going up\n");
-      } else {
-        /* A DAO route was found so we set the down flag. */
-        UIP_EXT_HDR_OPT_RPL_BUF->flags |= RPL_HDR_OPT_DOWN;
-        PRINTF("RPL option going down\n");
-      }
+            return 0;
     }
 
-    uip_ext_len = last_uip_ext_len;
-    return 0;
-  default:
-    PRINTF("RPL: Multi Hop-by-hop options not implemented\n");
-    uip_ext_len = last_uip_ext_len;
-    return 0;
-  }
+    switch (UIP_EXT_HDR_OPT_BUF->type) {
+        case UIP_EXT_HDR_OPT_RPL:
+            PRINTF("RPL: Updating RPL option\n");
+            UIP_EXT_HDR_OPT_RPL_BUF->senderrank = UIP_HTONS(instance->current_dag->rank);
+
+            /* Check the direction of the down flag, as per Section 11.2.2.3,
+               which states that if a packet is going down it should in
+               general not go back up again. If this happens, a
+               RPL_HDR_OPT_FWD_ERR should be flagged. */
+            if ((UIP_EXT_HDR_OPT_RPL_BUF->flags & RPL_HDR_OPT_DOWN)) {
+                if (uip_ds6_route_lookup(&UIP_IP_BUF->destipaddr) == NULL) {
+                    UIP_EXT_HDR_OPT_RPL_BUF->flags |= RPL_HDR_OPT_FWD_ERR;
+                    PRINTF("RPL forwarding error\n");
+                    /* We should send back the packet to the originating parent,
+                       but it is not feasible yet, so we send a No-Path DAO instead */
+                    PRINTF("RPL generate No-Path DAO\n");
+                    parent = rpl_get_parent((uip_lladdr_t *) packetbuf_addr(PACKETBUF_ADDR_SENDER));
+                    if (parent != NULL) {
+                        dao_output_target(parent, &UIP_IP_BUF->destipaddr, RPL_ZERO_LIFETIME);
+                    }
+                    /* Drop packet */
+                    return 1;
+                }
+            } else {
+                /* Set the down extension flag correctly as described in Section
+                   11.2 of RFC6550. If the packet progresses along a DAO route,
+                   the down flag should be set. */
+                if (uip_ds6_route_lookup(&UIP_IP_BUF->destipaddr) == NULL) {
+                    /* No route was found, so this packet will go towards the RPL
+                       root. If so, we should not set the down flag. */
+                    UIP_EXT_HDR_OPT_RPL_BUF->flags &= ~RPL_HDR_OPT_DOWN;
+                    PRINTF("RPL option going up\n");
+                } else {
+                    /* A DAO route was found so we set the down flag. */
+                    UIP_EXT_HDR_OPT_RPL_BUF->flags |= RPL_HDR_OPT_DOWN;
+                    PRINTF("RPL option going down\n");
+                }
+            }
+
+            uip_ext_len = last_uip_ext_len;
+            return 0;
+        default:
+            PRINTF("RPL: Multi Hop-by-hop options not implemented\n");
+            uip_ext_len = last_uip_ext_len;
+            return 0;
+    }
 }
+
 /*---------------------------------------------------------------------------*/
 int
-rpl_update_header_final(uip_ipaddr_t *addr)
-{
-  rpl_parent_t *parent;
-  int uip_ext_opt_offset;
-  int last_uip_ext_len;
+rpl_update_header_final(uip_ipaddr_t *addr) {
+    rpl_parent_t *parent;
+    int uip_ext_opt_offset;
+    int last_uip_ext_len;
 
-  last_uip_ext_len = uip_ext_len;
-  uip_ext_len = 0;
-  uip_ext_opt_offset = 2;
+    last_uip_ext_len = uip_ext_len;
+    uip_ext_len = 0;
+    uip_ext_opt_offset = 2;
 
-  if(UIP_IP_BUF->proto == UIP_PROTO_HBHO) {
-    if(UIP_HBHO_BUF->len != RPL_HOP_BY_HOP_LEN - 8) {
-      PRINTF("RPL: Non RPL Hop-by-hop options support not implemented\n");
-      uip_ext_len = last_uip_ext_len;
-      return 0;
-    }
-
-    if(UIP_EXT_HDR_OPT_BUF->type == UIP_EXT_HDR_OPT_RPL) {
-      if(UIP_EXT_HDR_OPT_RPL_BUF->senderrank == 0) {
-        PRINTF("RPL: Updating RPL option\n");
-        if(default_instance == NULL || !default_instance->used || !default_instance->current_dag->joined) {
-          PRINTF("RPL: Unable to add hop-by-hop extension header: incorrect default instance\n");
-          return 1;
+    if (UIP_IP_BUF->proto == UIP_PROTO_HBHO) {
+        if (UIP_HBHO_BUF->len != RPL_HOP_BY_HOP_LEN - 8) {
+            PRINTF("RPL: Non RPL Hop-by-hop options support not implemented\n");
+            uip_ext_len = last_uip_ext_len;
+            return 0;
         }
-        parent = rpl_find_parent(default_instance->current_dag, addr);
-        if(parent == NULL || parent != parent->dag->preferred_parent) {
-          UIP_EXT_HDR_OPT_RPL_BUF->flags = RPL_HDR_OPT_DOWN;
+
+        if (UIP_EXT_HDR_OPT_BUF->type == UIP_EXT_HDR_OPT_RPL) {
+            if (UIP_EXT_HDR_OPT_RPL_BUF->senderrank == 0) {
+                PRINTF("RPL: Updating RPL option\n");
+                if (default_instance == NULL || !default_instance->used || !default_instance->current_dag->joined) {
+                    PRINTF("RPL: Unable to add hop-by-hop extension header: incorrect default instance\n");
+                    return 1;
+                }
+                parent = rpl_find_parent(default_instance->current_dag, addr);
+                if (parent == NULL || parent != parent->dag->preferred_parent) {
+                    UIP_EXT_HDR_OPT_RPL_BUF->flags = RPL_HDR_OPT_DOWN;
+                }
+                UIP_EXT_HDR_OPT_RPL_BUF->instance = default_instance->instance_id;
+                UIP_EXT_HDR_OPT_RPL_BUF->senderrank = UIP_HTONS(default_instance->current_dag->rank);
+            }
         }
-        UIP_EXT_HDR_OPT_RPL_BUF->instance = default_instance->instance_id;
-        UIP_EXT_HDR_OPT_RPL_BUF->senderrank = UIP_HTONS(default_instance->current_dag->rank);
-      }
     }
-  }
-  return 0;
+    return 0;
 }
+
 /*---------------------------------------------------------------------------*/
 void
-rpl_remove_header(void)
-{
-  uint8_t temp_len;
+rpl_remove_header(void) {
+    uint8_t temp_len;
 
-  uip_ext_len = 0;
+    uip_ext_len = 0;
 
-  PRINTF("RPL: Verifying the presence of the RPL header option\n");
-  switch(UIP_IP_BUF->proto){
-  case UIP_PROTO_HBHO:
-    PRINTF("RPL: Removing the RPL header option\n");
-    UIP_IP_BUF->proto = UIP_HBHO_BUF->next;
-    temp_len = UIP_IP_BUF->len[1];
-    uip_len -= UIP_HBHO_BUF->len + 8;
-    UIP_IP_BUF->len[1] -= UIP_HBHO_BUF->len + 8;
-    if(UIP_IP_BUF->len[1] > temp_len) {
-      UIP_IP_BUF->len[0]--;
+    PRINTF("RPL: Verifying the presence of the RPL header option\n");
+    switch (UIP_IP_BUF->proto) {
+        case UIP_PROTO_HBHO:
+            PRINTF("RPL: Removing the RPL header option\n");
+            UIP_IP_BUF->proto = UIP_HBHO_BUF->next;
+            temp_len = UIP_IP_BUF->len[1];
+            uip_len -= UIP_HBHO_BUF->len + 8;
+            UIP_IP_BUF->len[1] -= UIP_HBHO_BUF->len + 8;
+            if (UIP_IP_BUF->len[1] > temp_len) {
+                UIP_IP_BUF->len[0]--;
+            }
+            memmove(UIP_EXT_BUF, UIP_HBHO_NEXT_BUF, uip_len - UIP_IPH_LEN);
+            break;
+        default:
+            PRINTF("RPL: No hop-by-hop Option found\n");
     }
-    memmove(UIP_EXT_BUF, UIP_HBHO_NEXT_BUF, uip_len - UIP_IPH_LEN);
-    break;
-  default:
-    PRINTF("RPL: No hop-by-hop Option found\n");
-  }
 }
+
 /*---------------------------------------------------------------------------*/
 uint8_t
-rpl_invert_header(void)
-{
-  uint8_t uip_ext_opt_offset;
-  uint8_t last_uip_ext_len;
+rpl_invert_header(void) {
+    uint8_t uip_ext_opt_offset;
+    uint8_t last_uip_ext_len;
 
-  last_uip_ext_len = uip_ext_len;
-  uip_ext_len = 0;
-  uip_ext_opt_offset = 2;
+    last_uip_ext_len = uip_ext_len;
+    uip_ext_len = 0;
+    uip_ext_opt_offset = 2;
 
-  PRINTF("RPL: Verifying the presence of the RPL header option\n");
-  switch(UIP_IP_BUF->proto) {
-  case UIP_PROTO_HBHO:
-    break;
-  default:
-    PRINTF("RPL: No hop-by-hop Option found\n");
-    uip_ext_len = last_uip_ext_len;
-    return 0;
-  }
+    PRINTF("RPL: Verifying the presence of the RPL header option\n");
+    switch (UIP_IP_BUF->proto) {
+        case UIP_PROTO_HBHO:
+            break;
+        default:
+            PRINTF("RPL: No hop-by-hop Option found\n");
+            uip_ext_len = last_uip_ext_len;
+            return 0;
+    }
 
-  switch (UIP_EXT_HDR_OPT_BUF->type) {
-  case UIP_EXT_HDR_OPT_RPL:
-    PRINTF("RPL: Updating RPL option (switching direction)\n");
-    UIP_EXT_HDR_OPT_RPL_BUF->flags &= RPL_HDR_OPT_DOWN;
-    UIP_EXT_HDR_OPT_RPL_BUF->flags ^= RPL_HDR_OPT_DOWN;
-    UIP_EXT_HDR_OPT_RPL_BUF->senderrank = UIP_HTONS(rpl_get_instance(UIP_EXT_HDR_OPT_RPL_BUF->instance)->current_dag->rank);
-    uip_ext_len = last_uip_ext_len;
-    return RPL_HOP_BY_HOP_LEN;
-  default:
-    PRINTF("RPL: Multi Hop-by-hop options not implemented\n");
-    uip_ext_len = last_uip_ext_len;
-    return 0;
-  }
+    switch (UIP_EXT_HDR_OPT_BUF->type) {
+        case UIP_EXT_HDR_OPT_RPL:
+            PRINTF("RPL: Updating RPL option (switching direction)\n");
+            UIP_EXT_HDR_OPT_RPL_BUF->flags &= RPL_HDR_OPT_DOWN;
+            UIP_EXT_HDR_OPT_RPL_BUF->flags ^= RPL_HDR_OPT_DOWN;
+            UIP_EXT_HDR_OPT_RPL_BUF->senderrank = UIP_HTONS(
+                    rpl_get_instance(UIP_EXT_HDR_OPT_RPL_BUF->instance)->current_dag->rank);
+            uip_ext_len = last_uip_ext_len;
+            return RPL_HOP_BY_HOP_LEN;
+        default:
+            PRINTF("RPL: Multi Hop-by-hop options not implemented\n");
+            uip_ext_len = last_uip_ext_len;
+            return 0;
+    }
 }
+
 /*---------------------------------------------------------------------------*/
 void
-rpl_insert_header(void)
-{
+rpl_insert_header(void) {
 #if RPL_INSERT_HBH_OPTION
-  if(default_instance != NULL && !uip_is_addr_mcast(&UIP_IP_BUF->destipaddr)) {
-    rpl_update_header_empty();
-  }
+    if(default_instance != NULL && !uip_is_addr_mcast(&UIP_IP_BUF->destipaddr)) {
+      rpl_update_header_empty();
+    }
 #endif
 }
 /*---------------------------------------------------------------------------*/
+//Non-storing support
+#if RPL_WITH_NON_STORING
+static int
+count_matching_bytes(const void *p1, const void *p2, size_t n)
+{
+  int i = 0;
+  for(i = 0; i < n; i++) {
+    if(((uint8_t *)p1)[i] != ((uint8_t *)p2)[i]) {
+      return i;
+    }
+  }
+  return n;
+}
+/*---------------------------------------------------------------------------*/
+static int
+insert_srh_header(void)
+{
+  /* Implementation of RFC6554 */
+  uint8_t temp_len;
+  uint8_t path_len;
+  uint8_t ext_len;
+  uint8_t cmpri, cmpre; /* ComprI and ComprE fields of the RPL Source Routing Header */
+  uint8_t *hop_ptr;
+  uint8_t padding;
+  rpl_ns_node_t *dest_node;
+  rpl_ns_node_t *root_node;
+  rpl_ns_node_t *node;
+  rpl_dag_t *dag;
+  uip_ipaddr_t node_addr;
+
+  PRINTF("RPL: SRH creating source routing header with destination ");
+  PRINT6ADDR(&UIP_IP_BUF->destipaddr);
+  PRINTF(" \n");
+
+  dag = rpl_get_dag(&UIP_IP_BUF->destipaddr);
+
+  if(dag == NULL) {
+    PRINTF("RPL: SRH DAG not found\n");
+    return 0;
+  }
+
+int
+rpl_srh_get_next_hop(uip_ipaddr_t *ipaddr)
+{
+  uint8_t *uip_next_hdr;
+  int last_uip_ext_len = uip_ext_len;
+  rpl_dag_t *dag;
+  rpl_ns_node_t *dest_node;
+  rpl_ns_node_t *root_node;
+
+  uip_ext_len = 0;
+  uip_next_hdr = &UIP_IP_BUF->proto;
+
+  while(uip_next_hdr != NULL && *uip_next_hdr != UIP_PROTO_ROUTING) {
+    switch(*uip_next_hdr) {
+      case UIP_PROTO_TCP:
+      case UIP_PROTO_UDP:
+      case UIP_PROTO_ICMP6:
+      case UIP_PROTO_NONE:
+        uip_next_hdr = NULL;
+        break;
+      case UIP_PROTO_HBHO:
+      case UIP_PROTO_DESTO:
+      case UIP_PROTO_FRAG:
+        if(uip_next_hdr != &UIP_IP_BUF->proto) {
+          uip_ext_len += (UIP_EXT_BUF->len << 3) + 8;
+        }
+        uip_next_hdr = &UIP_EXT_BUF->next;
+        break;
+      default:
+        break;
+    }
+  }
+
+  dag = rpl_get_dag(&UIP_IP_BUF->destipaddr);
+  root_node = rpl_ns_get_node(dag, &dag->dag_id);
+  dest_node = rpl_ns_get_node(dag, &UIP_IP_BUF->destipaddr);
+
+  if((uip_next_hdr != NULL && *uip_next_hdr == UIP_PROTO_ROUTING
+      && UIP_RH_BUF->routing_type == RPL_RH_TYPE_SRH) ||
+     (dest_node != NULL && root_node != NULL &&
+      dest_node->parent == root_node)) {
+    uip_ipaddr_copy(ipaddr, &UIP_IP_BUF->destipaddr);
+    uip_create_linklocal_prefix(ipaddr);
+    uip_ext_len = last_uip_ext_len;
+    return 1;
+  }
+
+  uip_ext_len = last_uip_ext_len;
+  return 0;
+}
+int
+rpl_process_srh_header(void)
+{
+  uint8_t *uip_next_hdr;
+  int last_uip_ext_len = uip_ext_len;
+
+  uip_ext_len = 0;
+  uip_next_hdr = &UIP_IP_BUF->proto;
+
+  /* Look for routing header */
+  while(uip_next_hdr != NULL && *uip_next_hdr != UIP_PROTO_ROUTING) {
+    switch(*uip_next_hdr) {
+      case UIP_PROTO_TCP:
+      case UIP_PROTO_UDP:
+      case UIP_PROTO_ICMP6:
+      case UIP_PROTO_NONE:
+        uip_next_hdr = NULL;
+        break;
+      case UIP_PROTO_HBHO:
+      case UIP_PROTO_DESTO:
+      case UIP_PROTO_FRAG:
+        /* Move to next header */
+        if(uip_next_hdr != &UIP_IP_BUF->proto) {
+          uip_ext_len += (UIP_EXT_BUF->len << 3) + 8;
+        }
+        uip_next_hdr = &UIP_EXT_BUF->next;
+        break;
+      default:
+        break;
+    }
+  }
+
+  if(uip_next_hdr != NULL && *uip_next_hdr == UIP_PROTO_ROUTING
+      && UIP_RH_BUF->routing_type == RPL_RH_TYPE_SRH) {
+    uint8_t cmpri, cmpre;
+    uint8_t ext_len;
+    uint8_t padding;
+    uint8_t path_len;
+    uint8_t segments_left;
+    uip_ipaddr_t current_dest_addr;
+
+    segments_left = UIP_RH_BUF->seg_left;
+    ext_len = (UIP_RH_BUF->len * 8) + 8;
+    cmpri = UIP_RPL_SRH_BUF->cmpr >> 4;
+    cmpre = UIP_RPL_SRH_BUF->cmpr & 0x0f;
+    padding = UIP_RPL_SRH_BUF->pad >> 4;
+    path_len = ((ext_len - padding - RPL_RH_LEN - RPL_SRH_LEN - (16 - cmpre)) / (16 - cmpri)) + 1;
+    (void)path_len;
+
+    if(segments_left == 0) {
+    } else {
+      uint8_t i = path_len - segments_left; /* The index of the next address to be visited */
+      uint8_t *addr_ptr = ((uint8_t *)UIP_RH_BUF) + RPL_RH_LEN + RPL_SRH_LEN + (i * (16 - cmpri));
+      uint8_t cmpr = segments_left == 1 ? cmpre : cmpri;
+
+      uip_ipaddr_copy(&current_dest_addr, &UIP_IP_BUF->destipaddr);
+      memcpy(((uint8_t *)&UIP_IP_BUF->destipaddr) + cmpr, addr_ptr, 16 - cmpr);
+      memcpy(addr_ptr, ((uint8_t *)&current_dest_addr) + cmpr, 16 - cmpr);
+
+      UIP_RH_BUF->seg_left--;
+    }
+    uip_ext_len = last_uip_ext_len;
+    return 1;
+  }
+
+  uip_ext_len = last_uip_ext_len;
+  return 0;
+}
+
+#endif
 
 /** @}*/
