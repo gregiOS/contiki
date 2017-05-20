@@ -20,6 +20,10 @@ PROJECT_SOURCEFILES += slip-bridge.c
 #Note /apps/webserver contains a 2500 byte style sheet which is a severe test
 #of the slip connection. Large MSS together with low baud rates without flow
 #control will overrun the transmit buffer when the style sheet is requested.
+MAKE_WITH_NON_STORING=1
+ifeq ($(MAKE_WITH_NON_STORING),1)
+CFLAGS += -DWITH_NON_STORING=1
+endif
 
 WITH_WEBSERVER=1
 ifeq ($(WITH_WEBSERVER),1)

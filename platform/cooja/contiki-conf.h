@@ -45,6 +45,11 @@
 
 #define COOJA 1
 
+#ifndef RPL_NS_CONF_LINK_NUM
+#define RPL_NS_CONF_LINK_NUM 300
+#endif
+
+
 #ifndef EEPROM_CONF_SIZE
 #define EEPROM_CONF_SIZE				1024
 #endif

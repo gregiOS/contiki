@@ -3,6 +3,11 @@ all: sky-websense
 CONTIKI=../../..
 
 APPS += webbrowser
+MAKE_WITH_NON_STORING=1
+ifeq ($(MAKE_WITH_NON_STORING),1)
+CFLAGS += -DWITH_NON_STORING=1
+endif
+
 
 CFLAGS += -DPROJECT_CONF_H=\"project-conf.h\"
 CONTIKI_SOURCEFILES += wget.c
