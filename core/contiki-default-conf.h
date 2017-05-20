@@ -78,6 +78,17 @@
 #define NETSTACK_CONF_LLSEC nullsec_driver
 #endif /* NETSTACK_CONF_LLSEC */
 
+/* RPL in non-storing mode flags */
+
+#ifndef RPL_CONF_MOP
+#define RPL_CONF_MOP RPL_MOP_STORING_NO_MULTICAST
+#endif
+
+// Number of nodes that can maintain RPL root by defauly in the non storing mode
+#ifndef RPL_NS_CONF_LINK_NUM
+#define RPL_NS_CONF_LINK_NUM 32
+#endif
+
 /* To avoid unnecessary complexity, we assume the common case of
    a constant LoWPAN-wide IEEE 802.15.4 security level, which
    can be specified by defining LLSEC802154_CONF_SECURITY_LEVEL. */

@@ -211,6 +211,10 @@
 #define RPL_PREFERENCE              0
 #endif
 
+// It is required to refesh routing tables in every node
+// as it doesn't store any routing rows
+#define RPL_DIO_REFRESH_DAO_ROUTES 1
+
 /*
  * Hop-by-hop option
  * This option control the insertion of the RPL Hop-by-Hop extension header

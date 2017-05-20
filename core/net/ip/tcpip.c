@@ -70,6 +70,7 @@ extern struct uip_fallback_interface UIP_FALLBACK_INTERFACE;
 
 #if UIP_CONF_IPV6_RPL
 #include "rpl/rpl.h"
+#include "rpl/rpl-private.h"
 #endif
 
 process_event_t tcpip_event;
@@ -540,7 +541,7 @@ void
 tcpip_ipv6_output(void)
 {
   uip_ds6_nbr_t *nbr = NULL;
-  uip_ipaddr_t *nexthop;
+  uip_ipaddr_t *nexthop = NULL;
 
   if(uip_len == 0) {
     return;
@@ -571,7 +572,7 @@ tcpip_ipv6_output(void)
       uip_ds6_route_t *route;
       /* Check if we have a route to the destination address. */
       route = uip_ds6_route_lookup(&UIP_IP_BUF->destipaddr);
-
+      // Non-storing mode implementation works thanks to this
       /* No route was found - we send to the default route instead. */
       if(route == NULL) {
         PRINTF("tcpip_ipv6_output: no route found, using default route\n");

@@ -1828,6 +1828,14 @@ typedef struct uip_ext_hdr_opt_rpl {
   uint16_t senderrank;
 } uip_ext_hdr_opt_rpl;
 
+// Additional rpl sourcer routing header required when package should go from root to the addressee
+
+typedef struct uip_rpl_srh_hdr {
+    uint8_t reserved[2];
+    uint8_t pad;
+    uint8_t cmpr;
+} uip_rpl_srh_hdr;
+
 /* TCP header */
 struct uip_tcp_hdr {
   uint16_t srcport;
