@@ -48,7 +48,7 @@ void rpl_non_storing_periodic(void) {
     if(l->lifetime == 0) {
       rpl_non_storing_node_t *l2;
       for(l2 = list_head(list_of_nodes); l2 != NULL; l2 = list_item_next(l2)) {
-        if(l2->parent == l) {
+        if(l2->parent_node == l) {
           break;
         }
       }
@@ -96,7 +96,7 @@ int rpl_non_storing_is_node_reachable(const rpl_dag_t *dag, const uip_ipaddr_t *
 void rpl_non_storing_expire_parent(rpl_dag_t *dag, const uip_ipaddr_t *child, const uip_ipaddr_t *parent)
 {
   rpl_non_storing_node_t *l = rpl_non_storing_get_node(dag, child);
-  if(l != NULL && node_matches_address(dag, l->parent, parent)) {
+  if(l != NULL && node_matches_address(dag, l->parent_node, parent)) {
     l->lifetime = RPL_NOPATH_REMOVAL_DELAY;
   }
 }
@@ -134,10 +134,10 @@ rpl_non_storing_node_t *rpl_non_storing_update_node(rpl_dag_t *dag, const uip_ip
     old_parent_node = child_node->parent_node;
     child_node->parent_node = parent_node;
     if(!rpl_non_storing_is_node_reachable(dag, child)) {
-      child_node->parent = old_parent_node;
+      child_node->parent_node = old_parent_node;
     }
   } else {
-    child_node->parent = parent_node;
+    child_node->parent_node = parent_node;
   }
 
   return child_node;

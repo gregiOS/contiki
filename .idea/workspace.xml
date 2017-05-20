@@ -10,10 +10,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3ec8d7c8-d649-44cd-a500-89301844f3d3" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/net/rpl/rpl-non-storing.c" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/net/rpl/rpl-non-storing.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/net/rpl/rpl-ext-header.c" afterPath="$PROJECT_DIR$/core/net/rpl/rpl-ext-header.c" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/net/rpl/rpl-non-storing.c" afterPath="$PROJECT_DIR$/core/net/rpl/rpl-non-storing.c" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -28,126 +25,134 @@
   </component>
   <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="uip.h" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/core/net/ip/uip.h">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="27285">
-              <caret line="1819" column="23" lean-forward="false" selection-start-line="1819" selection-start-column="23" selection-end-line="1819" selection-end-column="23" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="uip-ds6-route.h" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/core/net/ipv6/uip-ds6-route.h">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="900">
-              <caret line="60" column="40" lean-forward="false" selection-start-line="60" selection-start-column="40" selection-end-line="60" selection-end-column="40" />
-              <folding>
-                <element signature="e#1924#1984#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="uip-ds6-route.c" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/core/net/ipv6/uip-ds6-route.c">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2400">
-              <caret line="160" column="58" lean-forward="false" selection-start-line="160" selection-start-column="58" selection-end-line="160" selection-end-column="58" />
-              <folding>
-                <element signature="e#2792#2815#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="uip-icmp6.c" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/core/net/ipv6/uip-icmp6.c">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="5475">
-              <caret line="365" column="51" lean-forward="false" selection-start-line="365" selection-start-column="51" selection-end-line="365" selection-end-column="51" />
-              <folding>
-                <element signature="e#1908#2603#0" expanded="true" />
-                <element signature="e#5539#6455#0" expanded="true" />
-                <element signature="e#7227#7228#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="rpl-conf.h" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/core/net/rpl/rpl-conf.h">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3240">
-              <caret line="216" column="0" lean-forward="false" selection-start-line="216" selection-start-column="0" selection-end-line="216" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="rpl-dag-root.c" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/core/net/rpl/rpl-dag-root.c">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3075">
-              <caret line="205" column="25" lean-forward="false" selection-start-line="205" selection-start-column="25" selection-end-line="205" selection-end-column="25" />
-              <folding>
-                <element signature="e#1923#1960#0" expanded="true" />
-                <element signature="e#3332#3572#0" expanded="true" />
-                <element signature="e#4132#4600#0" expanded="true" />
-                <element signature="e#5615#5660#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="rpl-dag.c" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/core/net/rpl/rpl-dag.c">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="265">
-              <caret line="881" column="3" lean-forward="true" selection-start-line="881" selection-start-column="3" selection-end-line="881" selection-end-column="3" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="rpl-ext-header.c" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/core/net/rpl/rpl-ext-header.c">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="397">
-              <caret line="51" column="35" lean-forward="false" selection-start-line="51" selection-start-column="35" selection-end-line="51" selection-end-column="35" />
-              <folding>
-                <element signature="e#15306#15422#0" expanded="true" />
-                <element signature="e#15559#19855#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="rpl-non-storing.c" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/core/net/rpl/rpl-non-storing.c">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-777">
-              <caret line="44" column="5" lean-forward="true" selection-start-line="44" selection-start-column="5" selection-end-line="44" selection-end-column="5" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="rpl-non-storing.h" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/core/net/rpl/rpl-non-storing.h">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="270">
-              <caret line="18" column="23" lean-forward="false" selection-start-line="18" selection-start-column="23" selection-end-line="18" selection-end-column="23" />
-              <folding>
-                <element signature="e#267#311#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <splitter split-orientation="horizontal" split-proportion="0.5">
+      <split-first>
+        <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+          <file leaf-file-name="uip.h" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/core/net/ip/uip.h">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="27285">
+                  <caret line="1819" column="23" lean-forward="false" selection-start-line="1819" selection-start-column="23" selection-end-line="1819" selection-end-column="23" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="uip-ds6-route.h" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/core/net/ipv6/uip-ds6-route.h">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="900">
+                  <caret line="60" column="40" lean-forward="false" selection-start-line="60" selection-start-column="40" selection-end-line="60" selection-end-column="40" />
+                  <folding>
+                    <element signature="e#1924#1984#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="uip-ds6-route.c" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/core/net/ipv6/uip-ds6-route.c">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="2400">
+                  <caret line="160" column="58" lean-forward="false" selection-start-line="160" selection-start-column="58" selection-end-line="160" selection-end-column="58" />
+                  <folding>
+                    <element signature="e#2792#2815#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="uip-icmp6.c" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/core/net/ipv6/uip-icmp6.c">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="5475">
+                  <caret line="365" column="51" lean-forward="false" selection-start-line="365" selection-start-column="51" selection-end-line="365" selection-end-column="51" />
+                  <folding>
+                    <element signature="e#1908#2603#0" expanded="true" />
+                    <element signature="e#5539#6455#0" expanded="true" />
+                    <element signature="e#7227#7228#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="rpl-conf.h" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/core/net/rpl/rpl-conf.h">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="3240">
+                  <caret line="216" column="0" lean-forward="false" selection-start-line="216" selection-start-column="0" selection-end-line="216" selection-end-column="0" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="rpl-dag-root.c" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/core/net/rpl/rpl-dag-root.c">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="3075">
+                  <caret line="205" column="25" lean-forward="false" selection-start-line="205" selection-start-column="25" selection-end-line="205" selection-end-column="25" />
+                  <folding>
+                    <element signature="e#1923#1960#0" expanded="true" />
+                    <element signature="e#3332#3572#0" expanded="true" />
+                    <element signature="e#4132#4600#0" expanded="true" />
+                    <element signature="e#5615#5660#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="rpl-dag.c" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/core/net/rpl/rpl-dag.c">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="265">
+                  <caret line="881" column="3" lean-forward="true" selection-start-line="881" selection-start-column="3" selection-end-line="881" selection-end-column="3" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="rpl-ext-header.c" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/core/net/rpl/rpl-ext-header.c">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="397">
+                  <caret line="51" column="35" lean-forward="false" selection-start-line="51" selection-start-column="35" selection-end-line="51" selection-end-column="35" />
+                  <folding>
+                    <element signature="e#15306#15422#0" expanded="true" />
+                    <element signature="e#15559#19855#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="rpl-non-storing.c" pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/core/net/rpl/rpl-non-storing.c">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="801">
+                  <caret line="151" column="49" lean-forward="false" selection-start-line="151" selection-start-column="45" selection-end-line="151" selection-end-column="49" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+        </leaf>
+      </split-first>
+      <split-second>
+        <leaf>
+          <file leaf-file-name="rpl-non-storing.h" pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/core/net/rpl/rpl-non-storing.h">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="330">
+                  <caret line="22" column="42" lean-forward="false" selection-start-line="22" selection-start-column="33" selection-end-line="22" selection-end-column="42" />
+                  <folding>
+                    <element signature="e#267#311#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+        </leaf>
+      </split-second>
+    </splitter>
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
@@ -163,6 +168,7 @@
       <find>nexth</find>
       <find>NON_S</find>
       <find>num_nodes</find>
+      <find>next</find>
     </findStrings>
     <replaceStrings>
       <replace>number_of_nodes</replace>
@@ -578,12 +584,12 @@
       <updated>1495047925756</updated>
       <workItem from="1495047927063" duration="1938000" />
       <workItem from="1495266782144" duration="2980000" />
-      <workItem from="1495278655121" duration="3041000" />
+      <workItem from="1495278655121" duration="3198000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="7959000" />
+    <option name="totallyTimeSpent" value="8116000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="1440" y="23" width="1920" height="1057" extended-state="6" />
@@ -892,8 +898,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/core/net/rpl/rpl-non-storing.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="270">
-          <caret line="18" column="23" lean-forward="false" selection-start-line="18" selection-start-column="23" selection-end-line="18" selection-end-column="23" />
+        <state relative-caret-position="330">
+          <caret line="22" column="42" lean-forward="false" selection-start-line="22" selection-start-column="33" selection-end-line="22" selection-end-column="42" />
           <folding>
             <element signature="e#267#311#0" expanded="true" />
           </folding>
@@ -902,8 +908,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/core/net/rpl/rpl-non-storing.c">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-777">
-          <caret line="44" column="5" lean-forward="true" selection-start-line="44" selection-start-column="5" selection-end-line="44" selection-end-column="5" />
+        <state relative-caret-position="801">
+          <caret line="151" column="49" lean-forward="false" selection-start-line="151" selection-start-column="45" selection-end-line="151" selection-end-column="49" />
           <folding />
         </state>
       </provider>
