@@ -6,6 +6,7 @@
  */
 
 #include "net/rpl/rpl-private.h"
+#include "net/nbr-table.h"
 
 #define DEBUG DEBUG_FULL
 #include "net/uip-debug.h"
@@ -74,9 +75,9 @@ static rpl_dag_t *best_dag(rpl_dag_t *d1, rpl_dag_t *d2) {
     }
 
     if (d1->rank < d2->rank ) {
-        return d1->instance.mc.type != RPL_DAG_MC_ENERGY_TYPE_BATTERY ? d1 : d2;
+        return d1->instance->mc.type != RPL_DAG_MC_ENERGY_TYPE_BATTERY ? d1 : d2;
     }
-    return d2->instance.mc.type != RPL_DAG_MC_ENERGY_TYPE_BATTERY ? d2 : d1;
+    return d2->instance->mc.type != RPL_DAG_MC_ENERGY_TYPE_BATTERY ? d2 : d1;
 
 
 }
@@ -93,14 +94,14 @@ static rpl_rank_t calculate_rank(rpl_parent_t *parent, rpl_rank_t base) {
     } else {
         rank_increase = parent->link_metric;
         if (base == 0) {
-            base = p->rank;
+            base = parent->rank;
         }
     }
 
-    if (INFINITE_RANK - base_rank < rank_increase) {
+    if (INFINITE_RANK - base < rank_increase) {
         new_rank = INFINITE_RANK;
     } else {
-        new_rank = base_rank + rank_increase;
+        new_rank = base + rank_increase;
     }
     return new_rank;
 }
