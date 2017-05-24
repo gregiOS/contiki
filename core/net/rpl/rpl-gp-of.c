@@ -10,11 +10,16 @@
 #define DEBUG DEBUG_FULL
 #include "net/uip-debug.h"
 
+typedef uint16_t rpl_path_metric_t;
+
 static void reset(rpl_dag_t *);
 static rpl_parent_t *best_parent(rpl_parent_t *, rpl_parent_t *);
 static rpl_dag_t *best_dag(rpl_dag_t *, rpl_dag_t *);
 static rpl_rank_t calculate_rank(rpl_parent_t *, rpl_rank_t);
 static void update_metric_container(rpl_instance_t *);
+
+#define RPL_DAG_MC_ETX_DIVISIOR 1/2
+#define PARENT_SWITCH_THRESHOLD_DIV	2
 
 rpl_of_t rpl_of_gp = {
         reset,
@@ -54,9 +59,9 @@ static rpl_parent_t *best_parent(rpl_parent_t *p1, rpl_parent_t *p2)
     }
     if (p1_metric < p2_metric ) {
         return p1.mc.type != RPL_DAG_MC_ENERGY_TYPE_BATTERY ? p1 : p2;
-    } else {
-        return p2.mc.type != RPL_DAG_MC_ENERGY_TYPE_BATTERY ? p2 : p1;
     }
+    return p2.mc.type != RPL_DAG_MC_ENERGY_TYPE_BATTERY ? p2 : p1;
+
 }
 
 static rpl_dag_t *best_dag(rpl_dag_t *d1, rpl_dag_t *d2) {
@@ -69,10 +74,10 @@ static rpl_dag_t *best_dag(rpl_dag_t *d1, rpl_dag_t *d2) {
     }
 
     if (d1->rank < d2->rank ) {
-        return d1->instance->mc->type != RPL_DAG_MC_ENERGY_TYPE_BATTERY ? d1 : d2;
-    } else {
-        return d2->instance->mc->type != RPL_DAG_MC_ENERGY_TYPE_BATTERY ? d2 : d1;
+        return d1->instance.mc.type != RPL_DAG_MC_ENERGY_TYPE_BATTERY ? d1 : d2;
     }
+    return d2->instance.mc.type != RPL_DAG_MC_ENERGY_TYPE_BATTERY ? d2 : d1;
+
 
 }
 
@@ -86,7 +91,7 @@ static rpl_rank_t calculate_rank(rpl_parent_t *parent, rpl_rank_t base) {
         }
         rank_increase = RPL_INIT_LINK_METRIC * RPL_DAG_MC_ETX_DIVISIOR;
     } else {
-        rank_increase = p->link_metric;
+        rank_increase = parent->link_metric;
         if (base == 0) {
             base = p->rank;
         }
