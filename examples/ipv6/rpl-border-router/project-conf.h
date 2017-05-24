@@ -31,6 +31,10 @@
 #ifndef __PROJECT_ROUTER_CONF_H__
 #define __PROJECT_ROUTER_CONF_H__
 
+#ifndef RPL_DAG_MC
+#define RPL_DAG_MC RPL_DAG_MC_ENERGY
+#endif
+
 #ifndef UIP_FALLBACK_INTERFACE
 #define UIP_FALLBACK_INTERFACE rpl_interface
 #endif
