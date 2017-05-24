@@ -77,7 +77,7 @@ static rpl_parent_t *best_parent(rpl_parent_t *p1, rpl_parent_t *p2)
     if(p1 == dag->preferred_parent || p2 == dag->preferred_parent) {
         if(p1_metric < p2_metric + min_diff &&
            p1_metric > p2_metric - min_diff) {
-            PRINTF("SEDNING PACKAGE TO PREFERED PARRENT");
+            PRINTA("SEDNING PACKAGE TO PREFERED PARRENT");
             return dag->preferred_parent;
         }
     }
@@ -143,7 +143,7 @@ static void update_metric_container(rpl_instance_t *instance)
   dag = instance->current_dag;
 
   if (!dag->joined) {
-    PRINTF("RPL: Cannot update the metric container when not joined\n");
+    PRINTA("RPL: Cannot update the metric container when not joined\n");
     return;
   }
 
