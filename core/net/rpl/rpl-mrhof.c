@@ -47,7 +47,7 @@
 #include "net/rpl/rpl-private.h"
 #include "net/nbr-table.h"
 
-#define DEBUG DEBUG_NONE
+#define DEBUG DEBUG_FULL
 #include "net/uip-debug.h"
 
 static void reset(rpl_dag_t *);
