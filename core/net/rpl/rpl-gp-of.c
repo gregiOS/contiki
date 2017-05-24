@@ -59,9 +59,9 @@ static rpl_parent_t *best_parent(rpl_parent_t *p1, rpl_parent_t *p2)
         }
     }
     if (p1_metric < p2_metric ) {
-        return p1.mc.type != RPL_DAG_MC_ENERGY_TYPE_BATTERY ? p1 : p2;
+        return p1->mc.type != RPL_DAG_MC_ENERGY_TYPE_BATTERY ? p1 : p2;
     }
-    return p2.mc.type != RPL_DAG_MC_ENERGY_TYPE_BATTERY ? p2 : p1;
+    return p2->mc.type != RPL_DAG_MC_ENERGY_TYPE_BATTERY ? p2 : p1;
 
 }
 
