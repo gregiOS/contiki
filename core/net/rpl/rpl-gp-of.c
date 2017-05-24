@@ -32,6 +32,10 @@ rpl_of_t rpl_of_gp = {
         0
 };
 
+#define MAX_PATH_COST			100
+#define MAX_LINK_METRIC			10
+#define ETX_SCALE   100
+#define ETX_ALPHA   90
 
 static void reset(rpl_dag_t *sag) {
     PRINTF("RPL: GP - Objective Function Reset");
