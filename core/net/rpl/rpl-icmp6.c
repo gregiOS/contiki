@@ -317,6 +317,7 @@ dio_input(void)
       dio.mc.aggr = (buffer[i + 4] >> 4) & 0x3;
       dio.mc.prec = buffer[i + 4] & 0xf;
       dio.mc.length = buffer[i + 5];
+      dio.mc.reiability = 0;
 
       if(dio.mc.type == RPL_DAG_MC_NONE) {
         /* No metric container: do nothing */

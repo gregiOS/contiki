@@ -97,6 +97,7 @@ struct rpl_metric_container {
   uint8_t aggr;
   uint8_t prec;
   uint8_t length;
+  uint8_t reiability;
   union metric_object {
     struct rpl_metric_object_energy energy;
     uint16_t etx;

@@ -77,18 +77,21 @@ static rpl_parent_t *best_parent(rpl_parent_t *p1, rpl_parent_t *p2)
     if(p1 == dag->preferred_parent || p2 == dag->preferred_parent) {
         if(p1_metric < p2_metric + min_diff &&
            p1_metric > p2_metric - min_diff) {
-            PRINTA("SEDNING PACKAGE TO PREFERED PARRENT");
+            PRINTA("SEDNING PACKAGE TO PREFERRED PARENT");
             return dag->preferred_parent;
         }
     }
-    if (p1_metric < p2_metric ) {
-        return p1->dag->instance->mc.type != RPL_DAG_MC_ENERGY_TYPE_BATTERY ? p1 : p2;
+    if (p1->mc.reiability < p2->mc.reiability) {
+        return p1
     }
-    return p2->dag->instance->mc.type != RPL_DAG_MC_ENERGY_TYPE_BATTERY ? p2 : p1;
+    return p2;
 
 }
 
 static rpl_dag_t *best_dag(rpl_dag_t *d1, rpl_dag_t *d2) {
+    if (d1->instance->mc.reiability < d2->d1->instance->mc.reiability && d1->instance->mc.reiability != 0) {
+        return d2
+    }
     if(d1->grounded != d2->grounded) {
         return d1->grounded ? d1 : d2;
     }
@@ -166,5 +169,12 @@ static void update_metric_container(rpl_instance_t *instance)
 
   instance->mc.obj.energy.flags = type << RPL_DAG_MC_ENERGY_TYPE;
   instance->mc.obj.energy.energy_est = path_metric;
+  instance->mc.reiability = dag.rank;
+
+#ifdef NODE_BATTERY_POWERED
+    type = RPL_DAG_MC_ENERGY_TYPE_BATTERY;
+    instance->mc.reiability = (dag.rank / 4);
+#endif
+
 }
 
